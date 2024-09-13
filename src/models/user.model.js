@@ -1,8 +1,9 @@
-import mongoose, {Schema, schema} from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
+const {Schema, schema} = mongoose;
 
-const userSchema = new schema({
+const userSchema = new Schema({
     username: {
         type: String,
         required: true,
@@ -23,10 +24,6 @@ const userSchema = new schema({
         required: true,
         trim: true,
         index: true
-    },
-    avatar: {
-        type: String, // Cloudinary url
-        required: true,
     },
     avatar: {
         type: String, // Cloudinary url
@@ -57,7 +54,7 @@ const userSchema = new schema({
 
 userSchema.pre("save", async function(next) {
     if(!this.isModified("password")) return next()
-    this.password = bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10)
 })
 userSchema.methods.isPasswordCorrect = async function(password) {
     return await bcrypt.compare("password", this.password)
@@ -90,3 +87,4 @@ userSchema.methods.generateRefreshTokens = function () {
 }
 
 export const User = mongoose.model("User", userSchema);
+
